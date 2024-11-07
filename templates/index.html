@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Matrix Operations</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add Matrix Form -->
+        <h2>Add Matrix</h2>
+        <form action="{{ url_for('add_matrix') }}" method="post">
+            <label for="matrix_name">Matrix Name:</label>
+            <input type="text" id="matrix_name" name="matrix_name" required>
+            
+            <label for="matrix_data">Matrix Data (separate rows with semicolons, columns with spaces):</label>
+            <textarea id="matrix_data" name="matrix_data" required></textarea>
+            
+            <button type="submit" class="btn">Add Matrix</button>
+        </form>
+
+        <!-- Available Matrices -->
+        <h2>Available Matrices</h2>
+        <div class="matrix-list">
+            {% for name, matrix in matrices.items() %}
+                <div class="matrix-item">
+                    <div class="matrix-name">{{ name }}</div>
+                    <div class="matrix-content">
+                        {% for row in matrix %}
+                            {{ row|join(' ') }}
+                            {% if not loop.last %}<br>{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Matrix Operations Form -->
+        <h2>Matrix Operations</h2>
+        <form action="{{ url_for('perform_operation') }}" method="post">
+            <label for="operation">Operation:</label>
+            <select id="operation" name="operation" required>
+                <option value="add">Addition</option>
+                <option value="subtract">Subtraction</option>
+                <option value="multiply">Multiplication</option>
+                <option value="invert">Inversion</option>
+                <option value="determinant">Determinant</option>
+                <option value="transpose">Transpose</option>
+                <option value="eigen">Eigenvalues</option>
+                <option value="adjoint">Adjoint</option>
+            </select>
+
+            <label for="mat1_name">First Matrix:</label>
+            <select id="mat1_name" name="mat1_name" required>
+                {% for name in matrices.keys() %}
+                    <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="mat2_name">Second Matrix (for addition, subtraction, multiplication):</label>
+            <select id="mat2_name" name="mat2_name">
+                <option value="">-- Select Matrix --</option>
+                {% for name in matrices.keys() %}
+                    <option value="{{ name }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn">Perform Operation</button>
+        </form>
+
+        <!-- Results Section -->
+        {% if result %}
+            <h2>Result:</h2>
+            <ul>
+                {% for res in result %}
+                    <li class="{% if res is string and (res.startswith('Error') or res.startswith('An error')) %}result-error{% else %}result-message{% endif %}">
+                        {{ res }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% if (result is sequence and result[0] is not string) or 
+               (result is sequence and not result[0].startswith('Error') and 
+                not result[0].startswith('The determinant') and 
+                not result[0].startswith('Matrix') and 
+                not result[0].startswith('Inverse') and 
+                not result[0].startswith('An error')) %}
+                <form action="{{ url_for('save_result') }}" method="post" class="save-result-form">
+                    <label for="result_name">Save result as:</label>
+                    <input type="text" id="result_name" name="result_name" required>
+                    <input type="hidden" name="result_data" value="{{ result|tojson }}">
+                    <button type="submit" class="btn">Save Result</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>
