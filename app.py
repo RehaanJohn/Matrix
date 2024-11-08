@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import numpy as np
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for flashing messages
@@ -62,9 +63,8 @@ class MatrixOperations:
     def matrix_eigen(self, mat1_name):
         matrix = np.array(self.matrices[mat1_name])
         eigvals, _ = np.linalg.eig(matrix)
-        print([f"The Eigen values for Matrix {mat1_name} are: "]) 
-        return eigvals.tolist()
-
+        return [f"Eigen values for Matrix {mat1_name}: {eigvals.tolist()}"]
+        
 matrix_operations = MatrixOperations()
 
 @app.route('/')
@@ -74,13 +74,20 @@ def index():
 @app.route('/add_matrix', methods=['POST'])
 def add_matrix():
     matrix_name = request.form['matrix_name']
-    matrix_data = request.form['matrix_data']
+    matrix_data_str = request.form['matrix_data']
     
-    # Convert input string to list of lists
-    matrix_list = [list(map(float, row.split())) for row in matrix_data.split(';')]
+    try:
+        # Parse the JSON string into a list of lists
+        matrix_list = json.loads(matrix_data_str)
+        
+        # Convert to float
+        matrix_list = [[float(cell) for cell in row] for row in matrix_list]
+        
+        message = matrix_operations.input_matrix(matrix_name, matrix_list)
+        flash(message)
+    except Exception as e:
+        flash(f"Error adding matrix: {str(e)}")
     
-    message = matrix_operations.input_matrix(matrix_name, matrix_list)
-    flash(message)
     return redirect(url_for('index'))
 
 @app.route('/save_result', methods=['POST'])
@@ -110,16 +117,15 @@ def perform_operation():
     operation = request.form['operation']
     mat1_name = request.form.get('mat1_name')
     mat2_name = request.form.get('mat2_name')
-    result_name = request.form.get('result_name') 
 
-    # Check if the first matrix exists
+    # Validate matrix existence for the first matrix
     if mat1_name not in matrix_operations.matrices:
-        return render_template('index.html', matrices=matrix_operations.matrices, result=[f"Matrix '{mat1_name}' does not exist."])
-    
-    # Check if the second matrix exists for operations that require it
+        flash(f"Matrix '{mat1_name}' does not exist.")
+        return redirect(url_for('index'))
+
+    # Validate second matrix for operations requiring two matrices
     if operation in ['add', 'subtract', 'multiply'] and mat2_name not in matrix_operations.matrices:
         return render_template('index.html', matrices=matrix_operations.matrices, result=[f"Error: Two matrices need to be entered for this operation"])
-    
 
     try:
         if operation == 'multiply':
@@ -152,6 +158,14 @@ def perform_operation():
                 result = result.tolist()
         else:
             result = "Invalid operation."
+
+        if not isinstance(result, list):
+            result = [result]
+
+        return render_template('index.html', 
+                               matrices=matrix_operations.matrices, 
+                               result=result, 
+                               operation=operation)
     except KeyError as e:
         result = [f"KeyError: The matrix '{mat1_name}' does not exist."]
     except Exception as e:

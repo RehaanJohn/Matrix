@@ -24,27 +24,121 @@
 
         <!-- Add Matrix Form -->
         <h2>Add Matrix</h2>
-        <form action="{{ url_for('add_matrix') }}" method="post">
+        <form action="{{ url_for('add_matrix') }}" method="post" id="matrix_form">
             <label for="matrix_name">Matrix Name:</label>
             <input type="text" id="matrix_name" name="matrix_name" required>
-            
-            <label for="matrix_data">Matrix Data (separate rows with semicolons, columns with spaces):</label>
-            <textarea id="matrix_data" name="matrix_data" required></textarea>
-            
-            <button type="submit" class="btn">Add Matrix</button>
+        
+            <label for="matrix_data">Matrix Data:</label>
+            <table id="matrix_table">
+                <tbody>
+                    <tr>
+                        <td><input type="number" step="any" required></td>
+                        <td><input type="number" step="any" required></td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" step="any" required></td>
+                        <td><input type="number" step="any" required></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="matrix-controls">
+                <div class="row-controls">
+                    <button type="button" onclick="addRow()">Add Row</button>
+                    <button type="button" onclick="removeRow()">Remove Row</button>
+                </div>
+                <div class="column-controls">
+                    <button type="button" onclick="addColumn()">Add Column</button>
+                    <button type="button" onclick="removeColumn()">Remove Column</button>
+                </div>
+            </div>
+            <input type="hidden" name="matrix_data" id="matrix_data_hidden">
+            <button type="submit" class="btn" onclick="prepareMatrixData()">Add Matrix</button>
         </form>
+        
+        <script>
+        function prepareMatrixData() {
+            const table = document.getElementById('matrix_table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const matrixData = [];
+        
+            for (let i = 0; i < tbody.rows.length; i++) {
+                const rowData = [];
+                for (let j = 0; j < tbody.rows[i].cells.length; j++) {
+                    const input = tbody.rows[i].cells[j].querySelector('input');
+                    rowData.push(input.value);
+                }
+                matrixData.push(rowData);
+            }
+        
+            document.getElementById('matrix_data_hidden').value = JSON.stringify(matrixData);
+        }
+        
+        function addRow() {
+            const table = document.getElementById('matrix_table').getElementsByTagName('tbody')[0];
+            const currentRows = table.rows.length;
+            const currentCols = table.rows[0].cells.length;
+            
+            const newRow = table.insertRow();
+            for (let i = 0; i < currentCols; i++) {
+                const newCell = newRow.insertCell(i);
+                newCell.innerHTML = `<input type="number" step="any" required>`;
+            }
+        }
+        
+        function removeRow() {
+            const table = document.getElementById('matrix_table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            if (tbody.rows.length > 2) {
+                tbody.deleteRow(tbody.rows.length - 1);
+            } else {
+                alert("Cannot remove the last two rows.");
+            }
+        }
+        
+        function addColumn() {
+            const table = document.getElementById('matrix_table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            for (let i = 0; i < tbody.rows.length; i++) {
+                const newCell = tbody.rows[i].insertCell();
+                newCell.innerHTML = `<input type="number" step="any" required>`;
+            }
+        }
+        
+        function removeColumn() {
+            const table = document.getElementById('matrix_table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            
+            if (tbody.rows[0].cells.length > 2) {
+                for (let i = 0; i < tbody.rows.length; i++) {
+                    tbody.rows[i].deleteCell(tbody.rows[i].cells.length - 1);
+                }
+            } else {
+                alert("Cannot remove the last two columns.");
+            }
+        }
+        </script>
 
         <!-- Available Matrices -->
         <h2>Available Matrices</h2>
-        <div class="matrix-list">
+        <div class="matrix-grid">
             {% for name, matrix in matrices.items() %}
-                <div class="matrix-item">
-                    <div class="matrix-name">{{ name }}</div>
-                    <div class="matrix-content">
-                        {% for row in matrix %}
-                            {{ row|join(' ') }}
-                            {% if not loop.last %}<br>{% endif %}
-                        {% endfor %}
+                <div class="matrix-card">
+                    <div class="matrix-card-header">{{ name }}</div>
+                    <div class="matrix-card-content">
+                        <table class="matrix-display">
+                            {% for row in matrix %}
+                                <tr>
+                                    {% for cell in row %}
+                                        <td>{{ "%.2f"|format(cell) }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    <div class="matrix-card-footer">
+                        <span>Size: {{ matrix|length }} x {{ matrix[0]|length }}</span>
                     </div>
                 </div>
             {% endfor %}
@@ -84,30 +178,59 @@
         </form>
 
         <!-- Results Section -->
-        {% if result %}
-            <h2>Result:</h2>
-            <ul>
-                {% for res in result %}
-                    <li class="{% if res is string and (res.startswith('Error') or res.startswith('An error')) %}result-error{% else %}result-message{% endif %}">
-                        {{ res }}
-                    </li>
-                {% endfor %}
-            </ul>
-
-            {% if (result is sequence and result[0] is not string) or 
-               (result is sequence and not result[0].startswith('Error') and 
-                not result[0].startswith('The determinant') and 
-                not result[0].startswith('Matrix') and 
-                not result[0].startswith('Inverse') and 
-                not result[0].startswith('An error')) %}
-                <form action="{{ url_for('save_result') }}" method="post" class="save-result-form">
-                    <label for="result_name">Save result as:</label>
-                    <input type="text" id="result_name" name="result_name" required>
-                    <input type="hidden" name="result_data" value="{{ result|tojson }}">
-                    <button type="submit" class="btn">Save Result</button>
-                </form>
-            {% endif %}
-        {% endif %}
+        <!-- Results Section -->
+<!-- Results Section -->
+{% if result %}
+<h2>Result:</h2>
+<div class="matrix-grid">
+    <div class="matrix-card">
+        <div class="matrix-card-header">Result</div>
+        <div class="matrix-card-content">
+            <table class="matrix-display">
+                {% if result is sequence and result[0] is not string %}
+                    {% for row in result %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ "%.2f"|format(cell) }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>{{ result[0] }}</td>
+                    </tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="matrix-card-footer">
+            <span>Size: 
+                {% if result is sequence and result[0] is not string %}
+                    {{ result|length }} x {{ result[0]|length }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </span>
+        </div>
     </div>
-</body>
+
+    {% if operation != 'eigen' and 
+       (result is sequence and 
+        result[0] is not string and 
+        not (result[0] is string and 
+             (result[0].startswith('Error') or 
+              result[0].startswith('An error') or 
+              result[0].startswith('Eigen values') or 
+              result[0].startswith('Determinant') or 
+              result[0].startswith('Inverse')))) %}
+        <form action="{{ url_for('save_result') }}" method="post" class="save-result-form">
+            <label for="result_name">Save result as:</label>
+            <input type="text" id="result_name" name="result_name" required>
+            <input type="hidden" name="result_data" value="{{ result|tojson }}">
+            <button type="submit" class="btn">Save Result</button>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+        </div>
+    </body>
 </html>
