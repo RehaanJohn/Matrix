@@ -64,6 +64,11 @@ class MatrixOperations:
         matrix = np.array(self.matrices[mat1_name])
         eigvals, _ = np.linalg.eig(matrix)
         return [f"Eigen values for Matrix {mat1_name}: {eigvals.tolist()}"]
+
+    def matrix_scalar_multiplication(self, mat1_name, scalar):
+        matrix = np.array(self.matrices[mat1_name])
+        result = (matrix * scalar).tolist()
+        return result
         
 matrix_operations = MatrixOperations()
 
@@ -117,6 +122,7 @@ def perform_operation():
     operation = request.form['operation']
     mat1_name = request.form.get('mat1_name')
     mat2_name = request.form.get('mat2_name')
+    scalar_value = request.form.get('scalar_value')
 
     # Validate matrix existence for the first matrix
     if mat1_name not in matrix_operations.matrices:
@@ -152,6 +158,9 @@ def perform_operation():
                 result = result.tolist()
         elif operation == 'eigen':
             result = matrix_operations.matrix_eigen(mat1_name)
+        elif operation == 'scalar_multiply':  # Handle scalar multiplication
+            scalar = float(scalar_value)
+            result = matrix_operations.matrix_scalar_multiplication(mat1_name, scalar)
         elif operation == 'adjoint':
             result = matrix_operations.matrix_adjoint(mat1_name)
             if not isinstance(result, list):
