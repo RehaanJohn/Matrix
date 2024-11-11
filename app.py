@@ -131,7 +131,13 @@ def perform_operation():
 
     # Validate second matrix for operations requiring two matrices
     if operation in ['add', 'subtract', 'multiply'] and mat2_name not in matrix_operations.matrices:
-        return render_template('index.html', matrices=matrix_operations.matrices, result=[f"Error: Two matrices need to be entered for this operation"])
+        flash(f"Error: The operation '{operation}' requires a second matrix.")
+        return redirect(url_for('index',))
+
+    # Check if a second matrix is provided for operations that do not require it
+    if operation not in ['add', 'subtract', 'multiply'] and mat2_name:
+        flash(f"Error: The operation '{operation}' does not require a second matrix.")
+        return redirect(url_for('index'))
 
     try:
         if operation == 'multiply':

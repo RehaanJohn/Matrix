@@ -286,3 +286,57 @@ ul li {
 .small-btn:hover {
     background-color: #0056
 }
+
+.matrix-controls .icon-btn.icon-btn {
+    padding: 4px 6px !important; /* Reduce padding for smaller button size */
+    font-size: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    margin: 0 1px;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 20px !important; /* Reduced width */
+    height: 24px !important; /* Keep height or reduce if needed */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+.icon-btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+}
+
+.icon-btn:active {
+    transform: scale(0.95);
+}
+
+.matrix-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.row-controls, .order-controls, .column-controls {
+    display: flex;
+    align-items: center;
+}
+
+.row-controls button, .order-controls button, .column-controls button {
+    margin-right: 5px; /* Adds space between buttons */
+}
+
+.matrix-controls > div {
+    margin-right: 10px; /* Adds space between groups */
+}
+
+/* Ensure the buttons stay within the container */
+#matrix_form {
+    overflow: hidden; /* Prevents buttons from escaping */
+}

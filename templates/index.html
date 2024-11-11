@@ -43,12 +43,16 @@
             </table>
             <div class="matrix-controls">
                 <div class="row-controls">
-                    <button type="button" onclick="addRow()">Add Row</button>
-                    <button type="button" onclick="removeRow()">Remove Row</button>
+                    <button type="button" class="icon-btn" onclick="addRow()" title="Add Row">+</button>
+                    <button type="button" class="icon-btn" onclick="removeRow()" title="Remove Row">−</button>
+                </div>
+                <div class="order-controls">
+                    <button type="button" class="icon-btn" onclick="increaseOrder()" title="Increase Order">⇧</button>
+                    <button type="button" class="icon-btn" onclick="decreaseOrder()" title="Decrease Order">⇩</button>
                 </div>
                 <div class="column-controls">
-                    <button type="button" onclick="addColumn()">Add Column</button>
-                    <button type="button" onclick="removeColumn()">Remove Column</button>
+                    <button type="button" class="icon-btn" onclick="addColumn()" title="Add Column">+</button>
+                    <button type="button" class="icon-btn" onclick="removeColumn()" title="Remove Column">−</button>
                 </div>
             </div>
             <input type="hidden" name="matrix_data" id="matrix_data_hidden">
@@ -118,6 +122,48 @@
                 alert("Cannot remove the last two columns.");
             }
         }
+        function increaseOrder() {
+            const table = document.getElementById('matrix_table').getElementsByTagName('tbody')[0];
+            const currentRows = table.rows.length;
+            const currentCols = table.rows[0].cells.length;
+
+            // Add a new row
+            const newRow = table.insertRow();
+            for (let i = 0; i < currentCols + 1; i++) { // Increase columns by 1
+                const newCell = newRow.insertCell(i);
+                newCell.innerHTML = `<input type="number" step="any" required>`;
+            }
+
+            // Add a new column to each existing row
+            for (let i = 0; i < currentRows; i++) {
+                const newCell = table.rows[i].insertCell(currentCols);
+                newCell.innerHTML = `<input type="number" step="any" required>`;
+            }
+        }
+        function decreaseOrder() {
+            const table = document.getElementById('matrix_table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const currentRows = tbody.rows.length;
+            const currentCols = tbody.rows[0].cells.length;
+
+            // Delete the last row if there are more than 2 rows
+            if (currentRows > 2) {
+                tbody.deleteRow(currentRows - 1);
+            } else {
+                alert("Cannot remove the last two rows.");
+            }
+
+            // Delete the last column if there are more than 2 columns
+            if (currentCols > 2) {
+                for (let i = 0; i < currentRows; i++) {
+                    tbody.rows[i].deleteCell(currentCols - 1);
+                }
+            } else {
+                alert("Cannot remove the last two columns.");
+            }
+        }
+
+
         </script>
 
         <!-- Available Matrices -->
