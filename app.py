@@ -117,6 +117,16 @@ def save_result():
     
     return redirect(url_for('index'))
 
+@app.route('/delete_matrix/<matrix_name>', methods=['POST'])
+def delete_matrix(matrix_name):
+    if matrix_name in matrix_operations.matrices:
+        del matrix_operations.matrices[matrix_name]
+        flash(f"Matrix '{matrix_name}' deleted successfully.")
+    else:
+        flash(f"Matrix '{matrix_name}' does not exist.")
+    
+    return redirect(url_for('index'))
+
 @app.route('/perform_operation', methods=['POST'])
 def perform_operation():
     operation = request.form['operation']

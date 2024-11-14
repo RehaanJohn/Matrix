@@ -340,3 +340,76 @@ ul li {
 #matrix_form {
     overflow: hidden; /* Prevents buttons from escaping */
 }
+
+.matrix-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.matrix-card {
+    background-color: #f9f9f9; /* Light background */
+    border: 1px solid #e0e0e0; /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    overflow: hidden; /* Prevent overflow */
+    width: 250px; /* Fixed width for cards */
+    transition: transform 0.3s ease; /* Smooth scaling on hover */
+}
+
+.matrix-card:hover {
+    transform: scale(1.05); /* Scale effect on hover */
+}
+
+.matrix-card-header {
+    background-color: #4a4a4a; /* Dark header */
+    color: white; /* White text */
+    padding: 10px; /* Padding */
+    text-align: center; /* Center text */
+    font-weight: bold; /* Bold text */
+}
+
+.matrix-card-content {
+    padding: 15px; /* Padding for content */
+    display: flex; /* Flexbox for centering */
+    justify-content: center; /* Center content */
+}
+
+.matrix-display {
+    border-collapse: collapse; /* Collapse borders */
+    width: 100%; /* Full width */
+    max-width: 100%; /* Limit max width */
+    max-height: 300px; /* Set a maximum height */
+    overflow: auto; /* Add scrollbars if necessary */
+    font-size: 0.8em; /* Smaller font size for larger matrices */
+}
+
+.matrix-display td {
+    border: 1px solid #d0d0d0; /* Light grey border for cells */
+    padding: 5px; /* Padding for cells */
+    text-align: center; /* Center text */
+    min-width: 40px; /* Minimum width for cells */
+}
+
+.matrix-card-footer {
+    background-color: #f0f0f0; /* Light footer background */
+    padding: 10px; /* Padding */
+    text-align: center; /* Center footer text */
+    font-size: 0.9em; /* Smaller font size */
+    color: #666; /* Grey text */
+}
+
+.delete-btn {
+    background-color: #e74c3c; /* Red background for delete button */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 5px 10px; /* Padding */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    display: none; /* Initially hidden */
+}
+
+.delete-btn:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
