@@ -225,6 +225,7 @@
                 <option value="eigen">Eigenvalues</option>
                 <option value="adjoint">Adjoint</option>
                 <option value="scalar_multiply">Scalar Multiplication</option> <!-- New Option -->
+                <option value="power">Power</option> <!-- New Option -->
             </select>
 
             <label for="mat1_name">First Matrix:</label>
@@ -238,6 +239,11 @@
             <div id="scalar_input_container" style="display: none;">
                 <label for="scalar_value">Scalar Value:</label>
                 <input type="number" id="scalar_value" name="scalar_value" step="any"> <!-- Scalar Input -->
+            </div>
+
+            <div id="power_input_container" style="display: none;">
+                <label for="power_value">Power Value:</label>
+                <input type="number" id="power_value" name="power_value" step="any"> 
             </div>
 
             <label for="mat2_name">Second Matrix (for addition, subtraction, multiplication):</label>
@@ -255,13 +261,13 @@
             function toggleScalarInput() {
                 const operationSelect = document.getElementById('operation');
                 const scalarInputContainer = document.getElementById('scalar_input_container');
+                const powerInputContainer = document.getElementById('power_input_container');
                 
                 // Show the scalar input only for scalar multiplication operation
-                if (operationSelect.value === 'scalar_multiply') {
-                    scalarInputContainer.style.display = 'block';
-                } else {
-                    scalarInputContainer.style.display = 'none';
-                }
+                scalarInputContainer.style.display = (operationSelect.value === 'scalar_multiply') ? 'block' : 'none';
+
+                // Show the power input only for power operation
+                powerInputContainer.style.display = (operationSelect.value === 'power') ? 'block' : 'none';
             }
             </script>
 

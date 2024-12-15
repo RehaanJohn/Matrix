@@ -69,6 +69,26 @@ class MatrixOperations:
         matrix = np.array(self.matrices[mat1_name])
         result = (matrix * scalar).tolist()
         return result
+    
+    def matrix_powers(self, mat1_name, power):
+        try:
+            power = int(power)  # Ensure power is an integer
+        except ValueError:
+            return ["Power must be an integer."]
+
+        matrix = np.array(self.matrices[mat1_name])
+        if power < 0:
+            return["Power must be a non-negative integer."] 
+        
+        if power == 0:
+            result = np.identity(matrix.shape[0], dtype=matrix.dtype)
+        else:
+            result = matrix
+            for _ in range(1, power):
+                result = np.dot(result, matrix)
+        
+        return result.tolist()
+
         
 matrix_operations = MatrixOperations()
 
@@ -80,6 +100,10 @@ def index():
 def add_matrix():
     matrix_name = request.form['matrix_name']
     matrix_data_str = request.form['matrix_data']
+
+    if matrix_name in matrix_operations.matrices:
+        flash(f"Matrix with name {matrix_name} already exists",)
+        return redirect(url_for('index'))
     
     try:
         # Parse the JSON string into a list of lists
@@ -133,6 +157,7 @@ def perform_operation():
     mat1_name = request.form.get('mat1_name')
     mat2_name = request.form.get('mat2_name')
     scalar_value = request.form.get('scalar_value')
+    power_value = request.form.get('power_value')
 
     # Validate matrix existence for the first matrix
     if mat1_name not in matrix_operations.matrices:
@@ -147,6 +172,16 @@ def perform_operation():
     # Check if a second matrix is provided for operations that do not require it
     if operation not in ['add', 'subtract', 'multiply'] and mat2_name:
         flash(f"Error: The operation '{operation}' does not require a second matrix.")
+        return redirect(url_for('index'))
+    
+    # Check for scalar value if operation is scalar multiplication
+    if operation == 'scalar_multiply' and not scalar_value:
+        flash("Error: Please provide a scalar value for multiplication.")
+        return redirect(url_for('index'))
+
+    # Check for power value if operation is power
+    if operation == 'power' and not power_value:
+        flash("Error: Please provide a power value.")
         return redirect(url_for('index'))
 
     try:
@@ -181,6 +216,8 @@ def perform_operation():
             result = matrix_operations.matrix_adjoint(mat1_name)
             if not isinstance(result, list):
                 result = result.tolist()
+        elif operation == 'power':
+            result = matrix_operations.matrix_powers(mat1_name, power_value)
         else:
             result = "Invalid operation."
 
